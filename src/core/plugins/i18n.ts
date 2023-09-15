@@ -3,7 +3,9 @@ import { createI18n } from "vue-i18n";
 const messages = {
   en: {
     dashboard: "Dashboard",
-    category: "Category",
+    categories: "Category",
+    questions: "Question",
+    users: "User",
     layoutBuilder: "Layout builder",
     craft: "Crafted",
     pages: "Pages",

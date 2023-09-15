@@ -25,11 +25,27 @@ const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/category",
-        name: "category",
+        path: "/categories",
+        name: "categories",
         component: () => import("@/views/Category.vue"),
         meta: {
           pageTitle: "Category",
+        },
+      },
+      {
+        path: "/questions",
+        name: "questions",
+        component: () => import("@/views/Category.vue"),
+        meta: {
+          pageTitle: "Question",
+        },
+      },
+      {
+        path: "/users",
+        name: "users",
+        component: () => import("@/views/Category.vue"),
+        meta: {
+          pageTitle: "User",
         },
       },
     ],

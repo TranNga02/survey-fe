@@ -183,23 +183,15 @@ export default defineComponent({
     };
 
     const deleteFewCustomers = () => {
-      SwalPopup.swalChangePopup(
-        "Are you sure you want to delete this building?",
-        {
-          onConfirmed: () => {
-            selectedIds.value.forEach((item) => {
-              deleteCategory(item);
-            });
-            selectedIds.value.length = 0;
-          },
-        },
-        { confirmButtonText: "Yes, delete!" }
-      );
+      selectedIds.value.forEach((item) => {
+        deleteCategory(item);
+      });
+      selectedIds.value.length = 0;
     };
 
     const deleteCategory = (id: number) => {
       SwalPopup.swalChangePopup(
-        "Are you sure you want to delete this building?",
+        "Are you sure you want to delete?",
         {
           onConfirmed: () => {
             for (let i = 0; i < tableData.value.length; i++) {

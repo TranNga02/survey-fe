@@ -7,6 +7,7 @@ export default class SwalPopup {
       icon: type,
       buttonsStyling: false,
       focusConfirm: false,
+      confirmButtonColor: "#3085d6",
       confirmButtonText: "Ok, got it!",
       // customClass: {
       //   confirmButton: "btn btn-green p-3",
@@ -28,6 +29,8 @@ export default class SwalPopup {
       buttonsStyling: false,
       showCancelButton: true,
       focusConfirm: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
       confirmButtonText: options?.confirmButtonText || "Yes, delete!",
       cancelButtonText: options?.cancelButtonText || "No, cancel",
     }).then((result: any) => {

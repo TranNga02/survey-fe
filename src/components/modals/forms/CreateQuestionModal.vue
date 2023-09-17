@@ -13,7 +13,7 @@
         <!--begin::Modal header-->
         <div class="modal-header" id="kt_modal_add_customer_header">
           <!--begin::Modal title-->
-          <h2 class="fw-bold">Create category</h2>
+          <h2 class="fw-bold">Create question</h2>
           <!--end::Modal title-->
 
           <!--begin::Close-->
@@ -124,7 +124,7 @@ import Swal from "sweetalert2";
 import ApiService from "@/core/services/ApiService";
 
 export default defineComponent({
-  name: "create-category-modal",
+  name: "create-question-modal",
   components: {},
   setup() {
     const formRef = ref<null | HTMLFormElement>(null);
@@ -138,7 +138,7 @@ export default defineComponent({
       name: [
         {
           required: true,
-          message: "Category name is required",
+          message: "Customer name is required",
           trigger: "change",
         },
       ],

@@ -1,13 +1,11 @@
 <template>
   <div class="card">
     <div class="card-header border-0 pt-6">
-      <!--begin::Card title-->
       <div class="card-title">
         <div
           class="d-flex justify-content-end"
           data-kt-customer-table-toolbar="base"
         >
-          <!--begin::Add Category-->
           <button
             type="button"
             class="btn btn-primary"
@@ -19,15 +17,11 @@
                 :src="getAssetPath('media/icons/duotune/arrows/arr075.svg')"
               />
             </span>
-            Add Category
+            Add Question
           </button>
-          <!--end::Add Category-->
         </div>
       </div>
-      <!--begin::Card title-->
-      <!--begin::Card toolbar-->
       <div class="card-toolbar">
-        <!--begin::Group actions-->
         <div
           v-if="selectedIds.length !== 0"
           class="d-flex justify-content-end align-items-center"
@@ -40,13 +34,11 @@
           <button
             type="button"
             class="btn btn-danger"
-            @click="deleteFewCategories()"
+            @click="deleteFewQuestions()"
           >
             Delete Selected
           </button>
         </div>
-        <!--end::Group actions-->
-        <!--begin::Group actions-->
         <div
           class="d-flex justify-content-end align-items-center d-none"
           data-kt-customer-table-toolbar="selected"
@@ -66,9 +58,7 @@
             Delete Selected
           </button>
         </div>
-        <!--end::Group actions-->
       </div>
-      <!--end::Card toolbar-->
     </div>
     <div class="card-body pt-0">
       <DataTable
@@ -80,13 +70,16 @@
         :checkbox-enabled="true"
         checkbox-label="id"
       >
-        <template v-slot:name="{ row: category }">
-          {{ category.name }}
+        <template v-slot:description="{ row: question }">
+          {{ question.description }}
         </template>
-        <template v-slot:date="{ row: category }">
-          {{ formatDate(category.createdAt) }}
+        <template v-slot:category="{ row: question }">
+          {{ question.category.name }}
         </template>
-        <template v-slot:actions="{ row: category }">
+        <template v-slot:date="{ row: question }">
+          {{ formatDate(question.createdAt) }}
+        </template>
+        <template v-slot:actions="{ row: question }">
           <div class="dropdown dropdown-primary">
             <button
               class="btn btn-sm btn-light btn-active-light-primary dropdown-toggle"
@@ -102,7 +95,7 @@
                 <a class="dropdown-item">View</a>
               </li>
               <li>
-                <a class="dropdown-item" @click="deleteCategory(category.id)"
+                <a class="dropdown-item" @click="deleteFewQuestion(question.id)"
                   >Delete</a
                 >
               </li>
@@ -112,7 +105,7 @@
       </DataTable>
     </div>
   </div>
-  <CreateCategoryModal />
+  <CreateQuestionModal />
 </template>
 
 <script lang="ts">
@@ -121,29 +114,34 @@ import { defineComponent, ref, onMounted } from "vue";
 import DataTable from "@/components/kt-datatable/KTDataTable.vue";
 import type { Sort } from "@/components/kt-datatable//table-partials/models";
 import arraySort from "array-sort";
-import { useCategoryStore } from "@/stores/category";
-import type { ICategory } from "@/core/data/category";
+import type { IQuestion } from "@/core/data/question";
 import { formatDate } from "@/core/helpers/date";
-import CreateCategoryModal from "@/components/modals/forms/CreateCategoryModal.vue";
+import CreateQuestionModal from "@/components/modals/forms/CreateQuestionModal.vue";
 import SwalPopup from "@/core/helpers/swalPopup";
+import { useQuestionStore } from "@/stores/question";
 
 export default defineComponent({
-  name: "category",
+  name: "question",
   components: {
     DataTable,
-    CreateCategoryModal,
+    CreateQuestionModal,
   },
   setup() {
-    const store = useCategoryStore();
+    const store = useQuestionStore();
     const selectedIds = ref<Array<number>>([]);
-    const tableData = ref<Array<ICategory>>([]);
+    const tableData = ref<Array<IQuestion>>([]);
 
     const tableHeader = ref([
       {
-        columnName: "Name",
-        columnLabel: "name",
+        columnName: "Description",
+        columnLabel: "description",
+        columnWidth: 450,
+      },
+      {
+        columnName: "Category",
+        columnLabel: "category",
         sortEnabled: true,
-        columnWidth: 175,
+        columnWidth: 100,
       },
       {
         columnName: "Created Date",
@@ -160,14 +158,15 @@ export default defineComponent({
     ]);
 
     onMounted(() => {
-      getCategories();
+      getQuestions();
     });
 
-    const getCategories = async (): Promise<void> => {
-      store.getCategories({
+    const getQuestions = async (): Promise<void> => {
+      store.getQuestions({
         callback: {
           onSuccess: (res: any) => {
-            tableData.value = res.categories.rows;
+            tableData.value = res.items;
+            console.log(tableData.value);
           },
           onFailure: (err: any) => {
             SwalPopup.swalResultPopup(
@@ -179,7 +178,7 @@ export default defineComponent({
       });
     };
 
-    const deleteFewCategories = () => {
+    const deleteFewQuestions = () => {
       SwalPopup.swalChangePopup(
         "Are you sure you want to delete?",
         {
@@ -199,7 +198,7 @@ export default defineComponent({
       );
     };
 
-    const deleteCategory = (id: number) => {
+    const deleteFewQuestion = (id: number) => {
       SwalPopup.swalChangePopup(
         "Are you sure you want to delete?",
         {
@@ -244,11 +243,11 @@ export default defineComponent({
     return {
       tableData,
       tableHeader,
-      deleteCategory,
+      deleteFewQuestion,
       search,
       searchItems,
       selectedIds,
-      deleteFewCategories,
+      deleteFewQuestions,
       sort,
       onItemSelect,
       getAssetPath,

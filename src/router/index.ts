@@ -35,7 +35,7 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "/questions",
         name: "questions",
-        component: () => import("@/views/Category.vue"),
+        component: () => import("@/views/Question.vue"),
         meta: {
           pageTitle: "Question",
         },

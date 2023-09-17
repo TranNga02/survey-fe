@@ -40,7 +40,7 @@
           <button
             type="button"
             class="btn btn-danger"
-            @click="deleteFewCustomers()"
+            @click="deleteFewCategories()"
           >
             Delete Selected
           </button>
@@ -87,9 +87,9 @@
           {{ formatDate(category.createdAt) }}
         </template>
         <template v-slot:actions="{ row: category }">
-          <div class="dropdown">
+          <div class="dropdown dropdown-primary">
             <button
-              class="btn btn-primary dropdown-toggle"
+              class="btn btn-sm btn-light btn-active-light-primary dropdown-toggle"
               type="button"
               id="dropdownMenuButton1"
               data-bs-toggle="dropdown"
@@ -120,7 +120,6 @@ import { getAssetPath } from "@/core/helpers/assets";
 import { defineComponent, ref, onMounted } from "vue";
 import DataTable from "@/components/kt-datatable/KTDataTable.vue";
 import type { Sort } from "@/components/kt-datatable//table-partials/models";
-import type { ICustomer } from "@/core/data/customers";
 import arraySort from "array-sort";
 import { useCategoryStore } from "@/stores/category";
 import type { ICategory } from "@/core/data/category";
@@ -138,7 +137,6 @@ export default defineComponent({
     const store = useCategoryStore();
     const selectedIds = ref<Array<number>>([]);
     const tableData = ref<Array<ICategory>>([]);
-    const initCustomers = ref<Array<ICustomer>>([]);
 
     const tableHeader = ref([
       {
@@ -162,7 +160,6 @@ export default defineComponent({
     ]);
 
     onMounted(() => {
-      // initCustomers.value.splice(0, tableData.value.length, ...tableData.value);
       getCategories();
     });
 
@@ -182,11 +179,24 @@ export default defineComponent({
       });
     };
 
-    const deleteFewCustomers = () => {
-      selectedIds.value.forEach((item) => {
-        deleteCategory(item);
-      });
-      selectedIds.value.length = 0;
+    const deleteFewCategories = () => {
+      SwalPopup.swalChangePopup(
+        "Are you sure you want to delete?",
+        {
+          onConfirmed: () => {
+            selectedIds.value.forEach((item) => {
+              for (let i = 0; i < tableData.value.length; i++) {
+                if (tableData.value[i].id === item) {
+                  tableData.value.splice(i, 1);
+                  break;
+                }
+              }
+            });
+            selectedIds.value.length = 0;
+          },
+        },
+        { confirmButtonText: "Yes, delete!" }
+      );
     };
 
     const deleteCategory = (id: number) => {
@@ -197,6 +207,7 @@ export default defineComponent({
             for (let i = 0; i < tableData.value.length; i++) {
               if (tableData.value[i].id === id) {
                 tableData.value.splice(i, 1);
+                break;
               }
             }
           },
@@ -206,18 +217,7 @@ export default defineComponent({
     };
 
     const search = ref<string>("");
-    const searchItems = () => {
-      // tableData.value.splice(0, tableData.value.length, ...initCustomers.value);
-      // if (search.value !== "") {
-      //   let results: Array<ICustomer> = [];
-      //   for (let j = 0; j < tableData.value.length; j++) {
-      //     if (searchingFunc(tableData.value[j], search.value)) {
-      //       results.push(tableData.value[j]);
-      //     }
-      //   }
-      //   tableData.value.splice(0, tableData.value.length, ...results);
-      // }
-    };
+    const searchItems = () => {};
 
     const searchingFunc = (obj: any, value: string): boolean => {
       for (let key in obj) {
@@ -236,6 +236,7 @@ export default defineComponent({
         arraySort(tableData.value, sort.label, { reverse });
       }
     };
+
     const onItemSelect = (selectedItems: Array<number>) => {
       selectedIds.value = selectedItems;
     };
@@ -247,7 +248,7 @@ export default defineComponent({
       search,
       searchItems,
       selectedIds,
-      deleteFewCustomers,
+      deleteFewCategories,
       sort,
       onItemSelect,
       getAssetPath,

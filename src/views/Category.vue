@@ -29,7 +29,6 @@
     <div class="card-body pt-0">
       <DataTable
         @on-sort="sort"
-        @on-items-select="onItemSelect"
         :data="tableData"
         :header="tableHeader"
         :enable-items-per-page-dropdown="true"
@@ -58,6 +57,15 @@
                 <a class="dropdown-item">View</a>
               </li>
               <li>
+                <a
+                  class="dropdown-item"
+                  data-bs-toggle="modal"
+                  data-bs-target="#kt_modal_update_category"
+                  @click="onEdit(category)"
+                  >Edit</a
+                >
+              </li>
+              <li>
                 <a class="dropdown-item" @click="deleteCategory(category.id)"
                   >Delete</a
                 >
@@ -69,6 +77,10 @@
     </div>
   </div>
   <CreateCategoryModal @created-category="getCategories" />
+  <UpdateCategoryModal
+    @updated-category="getCategories"
+    :category="selectedCategory"
+  />
 </template>
 
 <script lang="ts">
@@ -81,6 +93,7 @@ import { useCategoryStore } from "@/stores/category";
 import type { ICategory } from "@/core/data/category";
 import { formatDate } from "@/core/helpers/date";
 import CreateCategoryModal from "@/components/modals/forms/CreateCategoryModal.vue";
+import UpdateCategoryModal from "@/components/modals/forms/UpdateCategoryModal.vue";
 import SwalPopup from "@/core/helpers/swalPopup";
 
 export default defineComponent({
@@ -88,10 +101,11 @@ export default defineComponent({
   components: {
     DataTable,
     CreateCategoryModal,
+    UpdateCategoryModal,
   },
   setup() {
     const store = useCategoryStore();
-    const selectedIds = ref<Array<number>>([]);
+    const selectedCategory = ref<ICategory>();
     const tableData = ref<Array<ICategory>>([]);
 
     const tableHeader = ref([
@@ -181,8 +195,8 @@ export default defineComponent({
       }
     };
 
-    const onItemSelect = (selectedItems: Array<number>) => {
-      selectedIds.value = selectedItems;
+    const onEdit = (category: ICategory) => {
+      selectedCategory.value = category;
     };
 
     return {
@@ -191,9 +205,9 @@ export default defineComponent({
       deleteCategory,
       search,
       searchItems,
-      selectedIds,
+      selectedCategory,
       sort,
-      onItemSelect,
+      onEdit,
       getAssetPath,
       formatDate,
       getCategories,

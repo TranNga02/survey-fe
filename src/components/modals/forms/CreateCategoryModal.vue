@@ -121,7 +121,6 @@ import { getAssetPath } from "@/core/helpers/assets";
 import { defineComponent, ref } from "vue";
 import { hideModal } from "@/core/helpers/dom";
 import Swal from "sweetalert2";
-import ApiService from "@/core/services/ApiService";
 import { useCategoryStore } from "@/stores/category";
 import type { UpdateCategoryParams } from "@/core/data/category";
 import SwalPopup from "@/core/helpers/swalPopup";

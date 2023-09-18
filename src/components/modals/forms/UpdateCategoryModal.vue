@@ -118,7 +118,7 @@
 
 <script lang="ts">
 import { getAssetPath } from "@/core/helpers/assets";
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, watch } from "vue";
 import { hideModal } from "@/core/helpers/dom";
 import Swal from "sweetalert2";
 import { useCategoryStore } from "@/stores/category";
@@ -132,7 +132,7 @@ export default defineComponent({
   props: {
     category: {
       type: Object as () => ICategory,
-      required: false, // Allow category prop to be undefined
+      required: false,
     },
   },
   emits: ["updated-category"],
@@ -144,6 +144,13 @@ export default defineComponent({
     const formData = ref<UpdateCategoryParams>({
       name: props?.category?.name || "",
     });
+
+    watch(
+      () => props.category,
+      (newCategory) => {
+        formData.value.name = newCategory?.name || "";
+      }
+    );
 
     const rules = ref({
       name: [

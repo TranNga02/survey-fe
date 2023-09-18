@@ -5,4 +5,8 @@ interface ICategory {
   updatedAt: string;
 }
 
-export type { ICategory };
+interface UpdateCategoryParams {
+  name: string;
+}
+
+export type { ICategory, UpdateCategoryParams };

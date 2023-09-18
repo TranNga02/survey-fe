@@ -1,8 +1,8 @@
 <template>
   <div
     class="modal fade"
-    id="kt_modal_add_category"
-    ref="addCategoryModalRef"
+    id="kt_modal_add_customer"
+    ref="addCustomerModalRef"
     tabindex="-1"
     aria-hidden="true"
   >
@@ -11,14 +11,14 @@
       <!--begin::Modal content-->
       <div class="modal-content">
         <!--begin::Modal header-->
-        <div class="modal-header" id="kt_modal_add_category_header">
+        <div class="modal-header" id="kt_modal_add_customer_header">
           <!--begin::Modal title-->
           <h2 class="fw-bold">Create category</h2>
           <!--end::Modal title-->
 
           <!--begin::Close-->
           <div
-            id="kt_modal_add_category_close"
+            id="kt_modal_add_customer_close"
             data-bs-dismiss="modal"
             class="btn btn-icon btn-sm btn-active-icon-primary"
           >
@@ -43,12 +43,12 @@
             <!--begin::Scroll-->
             <div
               class="scroll-y me-n7 pe-7"
-              id="kt_modal_add_category_scroll"
+              id="kt_modal_add_customer_scroll"
               data-kt-scroll="true"
               data-kt-scroll-activate="{default: false, lg: true}"
               data-kt-scroll-max-height="auto"
-              data-kt-scroll-dependencies="#kt_modal_add_category_header"
-              data-kt-scroll-wrappers="#kt_modal_add_category_scroll"
+              data-kt-scroll-dependencies="#kt_modal_add_customer_header"
+              data-kt-scroll-wrappers="#kt_modal_add_customer_scroll"
               data-kt-scroll-offset="300px"
             >
               <!--begin::Input group-->
@@ -78,7 +78,7 @@
             <!--begin::Button-->
             <button
               type="reset"
-              id="kt_modal_add_category_cancel"
+              id="kt_modal_add_customer_cancel"
               class="btn btn-light me-3"
             >
               Cancel
@@ -122,21 +122,20 @@ import { defineComponent, ref } from "vue";
 import { hideModal } from "@/core/helpers/dom";
 import Swal from "sweetalert2";
 import ApiService from "@/core/services/ApiService";
-import { useCategoryStore } from "@/stores/category";
-import type { UpdateCategoryParams } from "@/core/data/category";
-import SwalPopup from "@/core/helpers/swalPopup";
+import type { ICategory } from "@/core/data/category";
 
 export default defineComponent({
-  name: "create-category-modal",
+  name: "update-category-modal",
   components: {},
-  emits: ["created-category"],
-  setup(props, { emit }) {
-    const store = useCategoryStore();
+  props: {
+    category: Object as () => ICategory,
+  },
+  setup(props) {
     const formRef = ref<null | HTMLFormElement>(null);
-    const addCategoryModalRef = ref<null | HTMLElement>(null);
+    const addCustomerModalRef = ref<null | HTMLElement>(null);
     const loading = ref<boolean>(false);
-    const formData = ref<UpdateCategoryParams>({
-      name: "",
+    const formData = ref({
+      name: props?.category?.name || "",
     });
 
     const rules = ref({
@@ -157,7 +156,7 @@ export default defineComponent({
       formRef.value.validate((valid: boolean) => {
         if (valid) {
           loading.value = true;
-          createCategory();
+          updateCategory();
         } else {
           Swal.fire({
             text: "Sorry, looks like there are some errors detected, please try again.",
@@ -174,35 +173,30 @@ export default defineComponent({
       });
     };
 
-    const createCategory = async (): Promise<void> => {
-      store.createCategory({
-        params: formData.value,
-        callback: {
-          onSuccess: (res: any) => {
-            loading.value = false;
-            Swal.fire({
-              text: "Category has been successfully added!",
-              icon: "success",
-              buttonsStyling: false,
-              confirmButtonText: "Ok, got it!",
-              heightAuto: false,
-              customClass: {
-                confirmButton: "btn btn-primary",
-              },
-            }).then(() => {
-              emit("created-category");
-              hideModal(addCategoryModalRef.value);
-            });
-          },
-          onFailure: (err: any) => {
-            loading.value = false;
-            SwalPopup.swalResultPopup(
-              "Sorry, looks like there are some errors detected, please try again.",
-              "error"
-            );
-          },
-        },
-      });
+    const updateCategory = () => {
+      ApiService.setHeader();
+      return ApiService.put(
+        `admin/categories/${props?.category?.id}`,
+        formData.value
+      )
+        .then(({ data }) => {
+          loading.value = false;
+          Swal.fire({
+            text: "Category has been successfully updated!",
+            icon: "success",
+            buttonsStyling: false,
+            confirmButtonText: "Ok, got it!",
+            heightAuto: false,
+            customClass: {
+              confirmButton: "btn btn-primary",
+            },
+          }).then(() => {
+            hideModal(addCustomerModalRef.value);
+          });
+        })
+        .catch(({ response }) => {
+          console.log(response.data.errors);
+        });
     };
 
     return {
@@ -211,7 +205,7 @@ export default defineComponent({
       submit,
       formRef,
       loading,
-      addCategoryModalRef,
+      addCustomerModalRef,
       getAssetPath,
     };
   },

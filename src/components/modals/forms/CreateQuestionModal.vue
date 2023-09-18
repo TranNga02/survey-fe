@@ -157,7 +157,7 @@ export default defineComponent({
             loading.value = false;
 
             Swal.fire({
-              text: "Form has been successfully submitted!",
+              text: "Question has been successfully added!",
               icon: "success",
               buttonsStyling: false,
               confirmButtonText: "Ok, got it!",

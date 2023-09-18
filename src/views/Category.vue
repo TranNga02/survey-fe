@@ -25,50 +25,6 @@
         </div>
       </div>
       <!--begin::Card title-->
-      <!--begin::Card toolbar-->
-      <div class="card-toolbar">
-        <!--begin::Group actions-->
-        <div
-          v-if="selectedIds.length !== 0"
-          class="d-flex justify-content-end align-items-center"
-          data-kt-category-table-toolbar="selected"
-        >
-          <div class="fw-bold me-5">
-            <span class="me-2">{{ selectedIds.length }}</span
-            >Selected
-          </div>
-          <button
-            type="button"
-            class="btn btn-danger"
-            @click="deleteFewCategories()"
-          >
-            Delete Selected
-          </button>
-        </div>
-        <!--end::Group actions-->
-        <!--begin::Group actions-->
-        <div
-          class="d-flex justify-content-end align-items-center d-none"
-          data-kt-category-table-toolbar="selected"
-        >
-          <div class="fw-bold me-5">
-            <span
-              class="me-2"
-              data-kt-category-table-select="selected_count"
-            ></span
-            >Selected
-          </div>
-          <button
-            type="button"
-            class="btn btn-danger"
-            data-kt-category-table-select="delete_selected"
-          >
-            Delete Selected
-          </button>
-        </div>
-        <!--end::Group actions-->
-      </div>
-      <!--end::Card toolbar-->
     </div>
     <div class="card-body pt-0">
       <DataTable
@@ -179,37 +135,25 @@ export default defineComponent({
       });
     };
 
-    const deleteFewCategories = () => {
+    const deleteCategory = async (id: number) => {
       SwalPopup.swalChangePopup(
         "Are you sure you want to delete?",
         {
-          onConfirmed: () => {
-            selectedIds.value.forEach((item) => {
-              for (let i = 0; i < tableData.value.length; i++) {
-                if (tableData.value[i].id === item) {
-                  tableData.value.splice(i, 1);
-                  break;
-                }
-              }
+          onConfirmed: async () => {
+            store.deleteCategory({
+              id: id,
+              callback: {
+                onSuccess: () => {
+                  getCategories();
+                },
+                onFailure: (err: any) => {
+                  SwalPopup.swalResultPopup(
+                    "Sorry, looks like there are some errors detected, please try again.",
+                    "error"
+                  );
+                },
+              },
             });
-            selectedIds.value.length = 0;
-          },
-        },
-        { confirmButtonText: "Yes, delete!" }
-      );
-    };
-
-    const deleteCategory = (id: number) => {
-      SwalPopup.swalChangePopup(
-        "Are you sure you want to delete?",
-        {
-          onConfirmed: () => {
-            for (let i = 0; i < tableData.value.length; i++) {
-              if (tableData.value[i].id === id) {
-                tableData.value.splice(i, 1);
-                break;
-              }
-            }
           },
         },
         { confirmButtonText: "Yes, delete!" }
@@ -248,7 +192,6 @@ export default defineComponent({
       search,
       searchItems,
       selectedIds,
-      deleteFewCategories,
       sort,
       onItemSelect,
       getAssetPath,

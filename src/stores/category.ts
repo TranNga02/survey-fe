@@ -76,7 +76,7 @@ export const useCategoryStore = defineStore("category", () => {
     id,
     callback,
   }: {
-    id: string;
+    id: number;
     callback: App.Callback;
   }): Promise<void> => {
     const onSuccess = get(callback, "onSuccess", noop);

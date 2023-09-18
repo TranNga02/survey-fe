@@ -43,7 +43,8 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "/users",
         name: "users",
-        component: () => import("@/views/Category.vue"),
+        component: () =>
+          import("@/views/apps/subscriptions/AddSubscription.vue"),
         meta: {
           pageTitle: "User",
         },

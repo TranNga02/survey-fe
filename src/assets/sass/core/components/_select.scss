@@ -1,0 +1,24 @@
+.select-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.select-group .select-item {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.select-group .select-item .svg-icon {
+  cursor: pointer;
+}
+
+.select-group .select-item .svg-icon {
+  cursor: pointer;
+}
+
+.select-group .select-item .svg-icon:hover {
+  color: var(--el-color-primary);
+}

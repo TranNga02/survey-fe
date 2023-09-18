@@ -10,7 +10,7 @@
             type="button"
             class="btn btn-primary"
             data-bs-toggle="modal"
-            data-bs-target="#kt_modal_add_customer"
+            data-bs-target="#kt_modal_add_question"
           >
             <span class="svg-icon svg-icon-2">
               <inline-svg
@@ -95,7 +95,15 @@
                 <a class="dropdown-item">View</a>
               </li>
               <li>
-                <a class="dropdown-item" @click="deleteFewQuestion(question.id)"
+                <a
+                  class="dropdown-item"
+                  data-bs-toggle="modal"
+                  data-bs-target="#kt_modal_update_question"
+                  >Edit</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" @click="deleteQuestion(question.id)"
                   >Delete</a
                 >
               </li>
@@ -166,7 +174,6 @@ export default defineComponent({
         callback: {
           onSuccess: (res: any) => {
             tableData.value = res.items;
-            console.log(tableData.value);
           },
           onFailure: (err: any) => {
             SwalPopup.swalResultPopup(
@@ -198,7 +205,7 @@ export default defineComponent({
       );
     };
 
-    const deleteFewQuestion = (id: number) => {
+    const deleteQuestion = (id: number) => {
       SwalPopup.swalChangePopup(
         "Are you sure you want to delete?",
         {
@@ -243,7 +250,7 @@ export default defineComponent({
     return {
       tableData,
       tableHeader,
-      deleteFewQuestion,
+      deleteQuestion,
       search,
       searchItems,
       selectedIds,

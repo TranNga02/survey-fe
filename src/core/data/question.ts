@@ -9,7 +9,22 @@ interface IQuestion {
   order: number;
   createdAt: string;
   updatedAt: string;
-  categoryName: ICategory;
+  category: ICategory;
 }
 
-export type { IQuestion };
+interface IOption {
+  key: string;
+  value: number;
+  isAnswer: boolean;
+}
+
+interface CreateQuestionParams {
+  categoryId: number | null;
+  title: string;
+  description: string;
+  type: number;
+  order: number;
+  options: IOption[];
+}
+
+export type { IQuestion, IOption, CreateQuestionParams };

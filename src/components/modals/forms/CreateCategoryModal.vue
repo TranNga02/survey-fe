@@ -54,7 +54,7 @@
               <!--begin::Input group-->
               <div class="fv-row mb-7">
                 <!--begin::Label-->
-                <label class="required fs-6 fw-semobold mb-2">Name</label>
+                <label class="required fs-6 fw-bold mb-2">Name</label>
                 <!--end::Label-->
 
                 <!--begin::Input-->
@@ -157,18 +157,6 @@ export default defineComponent({
         if (valid) {
           loading.value = true;
           createCategory();
-        } else {
-          Swal.fire({
-            text: "Sorry, looks like there are some errors detected, please try again.",
-            icon: "error",
-            buttonsStyling: false,
-            confirmButtonText: "Ok, got it!",
-            heightAuto: false,
-            customClass: {
-              confirmButton: "btn btn-primary",
-            },
-          });
-          return false;
         }
       });
     };

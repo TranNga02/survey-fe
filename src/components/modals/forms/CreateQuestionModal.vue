@@ -35,6 +35,7 @@
         <el-form
           @submit.prevent="submit()"
           :model="formData"
+          :rules="rules"
           ref="formRef"
           status-icon
         >
@@ -90,21 +91,21 @@
                 <label class="required fs-6 fw-bold mb-2">Answers</label>
                 <!-- <el-form-item prop="options"> -->
                 <div
-                  v-for="(answer, index) in listAnswers"
+                  v-for="(option, index) in formData.options"
                   class="w-100 d-flex border-bottom py-3"
                   :key="index"
                 >
                   <el-form-item
                     class="w-100"
-                    :prop="'listAnswers.' + index + '.key'"
+                    :prop="'options.' + index + '.key'"
                     :rules="{
                       required: true,
                       message: 'answer is required',
-                      trigger: 'blur',
+                      trigger: 'change',
                     }"
                   >
                     <el-input
-                      v-model="answer.key"
+                      v-model="option.key"
                       type="text"
                       placeholder="Enter answer"
                     ></el-input>
@@ -118,14 +119,14 @@
                   >
                     <el-switch
                       class="mx-3"
-                      :value="answer.isAnswer"
+                      :value="option.isAnswer"
                       @change="(value) => chooseRightAnswer(index, value)"
                     />
                   </el-tooltip>
                   <button
                     type="button"
                     class="btn btn-sm btn-icon btn-light-danger"
-                    @click="() => listAnswers.splice(index, 1)"
+                    @click="() => formData.options.splice(index, 1)"
                   >
                     <span class="svg-icon svg-icon-1">
                       <inline-svg
@@ -196,28 +197,6 @@
           <!--end::Modal footer-->
         </el-form>
         <!--end::Form-->
-        <el-form :model="myForm" ref="myForm">
-          <div v-for="(item, index) in items" :key="index">
-            <div class="col">
-              <el-form-item
-                label="Description"
-                :prop="'items.' + index + '.description'"
-                :rules="{
-                  required: true,
-                  message: 'description is required',
-                  trigger: 'blur',
-                }"
-              >
-                <el-input v-model="item.description"></el-input>
-              </el-form-item>
-            </div>
-            <div class="col">
-              <el-form-item label="Price" prop="price">
-                <el-input v-model="item.price"></el-input>
-              </el-form-item>
-            </div>
-          </div>
-        </el-form>
       </div>
     </div>
   </div>
@@ -246,30 +225,7 @@ export default defineComponent({
     const questionStore = useQuestionStore();
     const categoryStore = useCategoryStore();
     const formRef = ref<null | HTMLFormElement>(null);
-    const myForm = ref<null | HTMLFormElement>(null);
     const listCategories = ref<ICategory[]>([]);
-    const listAnswers = ref<IOption[]>([
-      {
-        key: "",
-        value: 1,
-        isAnswer: false,
-      },
-    ]);
-
-    const items = ref([
-      {
-        description: "",
-        price: 1,
-      },
-      {
-        description: "",
-        price: 3,
-      },
-      {
-        description: "",
-        price: 2,
-      },
-    ]);
     const addQuestionModalRef = ref<null | HTMLElement>(null);
     const loading = ref<boolean>(false);
     const formData = ref<CreateQuestionParams>({
@@ -278,7 +234,13 @@ export default defineComponent({
       description: "",
       type: 1,
       order: 1,
-      options: listAnswers.value,
+      options: [
+        {
+          key: "",
+          value: 1,
+          isAnswer: false,
+        },
+      ],
     });
 
     const rules = ref({
@@ -340,7 +302,7 @@ export default defineComponent({
     };
 
     const addNewAnswer = () => {
-      listAnswers.value.push({
+      formData.value.options.push({
         key: "",
         value: 1,
         isAnswer: false,
@@ -348,14 +310,16 @@ export default defineComponent({
     };
 
     const chooseRightAnswer = (answerIndex: number, value: boolean) => {
-      listAnswers.value = listAnswers.value.map((answer: IOption, index) => {
-        if (answerIndex === index) {
-          return { ...answer, isAnswer: value };
-        } else if (value) {
-          return { ...answer, isAnswer: false };
+      formData.value.options = formData.value.options.map(
+        (answer: IOption, index) => {
+          if (answerIndex === index) {
+            return { ...answer, isAnswer: value };
+          } else if (value) {
+            return { ...answer, isAnswer: false };
+          }
+          return answer;
         }
-        return answer;
-      });
+      );
     };
 
     // const createQuestion = async (): Promise<void> => {
@@ -392,7 +356,6 @@ export default defineComponent({
     return {
       formData,
       listCategories,
-      listAnswers,
       rules,
       submit,
       formRef,
@@ -401,8 +364,6 @@ export default defineComponent({
       getAssetPath,
       addNewAnswer,
       chooseRightAnswer,
-      myForm,
-      items,
     };
   },
 });

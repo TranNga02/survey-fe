@@ -77,6 +77,14 @@
                 <!--end::Input-->
               </div>
               <div class="fv-row mb-7">
+                <label class="fs-6 fw-bold mb-2">Title</label>
+                <el-input
+                  v-model="formData.title"
+                  type="text"
+                  placeholder="Enter title"
+                />
+              </div>
+              <div class="fv-row mb-7">
                 <label class="required fs-6 fw-bold mb-2">Description</label>
                 <el-form-item prop="description">
                   <el-input
@@ -119,14 +127,14 @@
                       placement="top"
                     >
                       <el-switch
-                        class="mx-3"
+                        class="mx-3 pt-2 pb-4 mb-2"
                         :value="option.isAnswer"
                         @change="(value) => chooseRightAnswer(index, value)"
                       />
                     </el-tooltip>
                     <button
                       type="button"
-                      class="btn btn-sm btn-icon btn-light-danger"
+                      class="btn btn-sm btn-icon btn-light-danger pt-2 pb-4 mb-2"
                       @click="() => formData.options.splice(index, 1)"
                     >
                       <span class="svg-icon svg-icon-1">
@@ -166,11 +174,7 @@
           <!--begin::Modal footer-->
           <div class="modal-footer flex-center">
             <!--begin::Button-->
-            <button
-              type="reset"
-              id="kt_modal_add_question_cancel"
-              class="btn btn-light me-3"
-            >
+            <button class="btn btn-light me-3" @click="resetForm">
               Cancel
             </button>
             <!--end::Button-->
@@ -232,7 +236,7 @@ export default defineComponent({
     const listCategories = ref<ICategory[]>([]);
     const addQuestionModalRef = ref<null | HTMLElement>(null);
     const loading = ref<boolean>(false);
-    const formData = ref<CreateQuestionParams>({
+    const initialForm: CreateQuestionParams = {
       categoryId: null,
       title: "",
       description: "",
@@ -245,7 +249,14 @@ export default defineComponent({
           isAnswer: false,
         },
       ],
-    });
+    };
+    const formData = ref<CreateQuestionParams>(
+      JSON.parse(JSON.stringify(initialForm))
+    );
+
+    const resetForm = () => {
+      formData.value = JSON.parse(JSON.stringify(initialForm));
+    };
 
     const validateAnswer = (rule: any, value: any, callback: any) => {
       if (formData.value.options.length == 0) {
@@ -309,7 +320,7 @@ export default defineComponent({
       formRef.value.validate((valid: boolean) => {
         if (valid) {
           loading.value = true;
-          // createQuestion();
+          createQuestion();
         }
       });
     };
@@ -335,36 +346,37 @@ export default defineComponent({
       );
     };
 
-    // const createQuestion = async (): Promise<void> => {
-    //   store.createQuestion({
-    //     params: formData.value,
-    //     callback: {
-    //       onSuccess: (res: any) => {
-    //         loading.value = false;
-    //         Swal.fire({
-    //           text: "Question has been successfully added!",
-    //           icon: "success",
-    //           buttonsStyling: false,
-    //           confirmButtonText: "Ok, got it!",
-    //           heightAuto: false,
-    //           customClass: {
-    //             confirmButton: "btn btn-primary",
-    //           },
-    //         }).then(() => {
-    //           emit("created-question");
-    //           hideModal(addQuestionModalRef.value);
-    //         });
-    //       },
-    //       onFailure: (err: any) => {
-    //         loading.value = false;
-    //         SwalPopup.swalResultPopup(
-    //           "Sorry, looks like there are some errors detected, please try again.",
-    //           "error"
-    //         );
-    //       },
-    //     },
-    //   });
-    // };
+    const createQuestion = async (): Promise<void> => {
+      questionStore.createQuestion({
+        params: formData.value,
+        callback: {
+          onSuccess: (res: any) => {
+            loading.value = false;
+            Swal.fire({
+              text: "Question has been successfully added!",
+              icon: "success",
+              buttonsStyling: false,
+              confirmButtonText: "Ok, got it!",
+              heightAuto: false,
+              customClass: {
+                confirmButton: "btn btn-primary",
+              },
+            }).then(() => {
+              emit("created-question");
+              resetForm();
+              hideModal(addQuestionModalRef.value);
+            });
+          },
+          onFailure: (err: any) => {
+            loading.value = false;
+            SwalPopup.swalResultPopup(
+              "Sorry, looks like there are some errors detected, please try again.",
+              "error"
+            );
+          },
+        },
+      });
+    };
 
     return {
       formData,
@@ -377,6 +389,7 @@ export default defineComponent({
       getAssetPath,
       addNewAnswer,
       chooseRightAnswer,
+      resetForm,
     };
   },
 });

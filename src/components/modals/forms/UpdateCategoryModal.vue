@@ -76,11 +76,7 @@
           <!--begin::Modal footer-->
           <div class="modal-footer flex-center">
             <!--begin::Button-->
-            <button
-              type="reset"
-              id="kt_modal_update_category_cancel"
-              class="btn btn-light me-3"
-            >
+            <button type="button" class="btn btn-light me-3" @click="resetForm">
               Cancel
             </button>
             <!--end::Button-->
@@ -157,7 +153,7 @@ export default defineComponent({
         {
           required: true,
           message: "Category name is required",
-          trigger: "change",
+          trigger: "blur",
         },
       ],
     });
@@ -173,6 +169,10 @@ export default defineComponent({
           updateCategory();
         }
       });
+    };
+
+    const resetForm = () => {
+      formData.value = { name: props?.category?.name || "" };
     };
 
     const updateCategory = async (): Promise<void> => {
@@ -193,6 +193,7 @@ export default defineComponent({
               },
             }).then(() => {
               emit("updated-category");
+              resetForm();
               hideModal(updateCategoryModalRef.value);
             });
           },
@@ -215,6 +216,7 @@ export default defineComponent({
       loading,
       updateCategoryModalRef,
       getAssetPath,
+      resetForm,
     };
   },
 });

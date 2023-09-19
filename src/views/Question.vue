@@ -113,7 +113,7 @@
       </DataTable>
     </div>
   </div>
-  <CreateQuestionModal />
+  <CreateQuestionModal @created-question="getQuestions" />
 </template>
 
 <script lang="ts">
@@ -259,6 +259,7 @@ export default defineComponent({
       onItemSelect,
       getAssetPath,
       formatDate,
+      getQuestions,
     };
   },
 });

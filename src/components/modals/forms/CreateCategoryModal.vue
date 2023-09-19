@@ -76,11 +76,7 @@
           <!--begin::Modal footer-->
           <div class="modal-footer flex-center">
             <!--begin::Button-->
-            <button
-              type="reset"
-              id="kt_modal_add_category_cancel"
-              class="btn btn-light me-3"
-            >
+            <button @click="resetForm" class="btn btn-light me-3">
               Cancel
             </button>
             <!--end::Button-->
@@ -148,6 +144,10 @@ export default defineComponent({
       ],
     });
 
+    const resetForm = () => {
+      formData.value = { name: "" };
+    };
+
     const submit = () => {
       if (!formRef.value) {
         return;
@@ -178,6 +178,7 @@ export default defineComponent({
               },
             }).then(() => {
               emit("created-category");
+              resetForm();
               hideModal(addCategoryModalRef.value);
             });
           },
@@ -200,6 +201,7 @@ export default defineComponent({
       loading,
       addCategoryModalRef,
       getAssetPath,
+      resetForm,
     };
   },
 });

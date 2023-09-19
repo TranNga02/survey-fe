@@ -112,13 +112,13 @@ export default defineComponent({
       {
         columnName: "Name",
         columnLabel: "name",
-        sortEnabled: true,
+        sortEnabled: false,
         columnWidth: 175,
       },
       {
         columnName: "Created Date",
         columnLabel: "date",
-        sortEnabled: true,
+        sortEnabled: false,
         columnWidth: 100,
       },
       {
@@ -134,7 +134,7 @@ export default defineComponent({
     });
 
     const getCategories = async (): Promise<void> => {
-      store.getCategories({
+      store.getAllCategories({
         callback: {
           onSuccess: (res: any) => {
             tableData.value = res.categories.rows;

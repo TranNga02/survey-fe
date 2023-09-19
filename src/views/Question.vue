@@ -103,7 +103,7 @@
                 >
               </li>
               <li>
-                <a class="dropdown-item" @click="deleteQuestion(question.id)"
+                <a class="dropdown-item" @click="deleteAQuestion(question.id)"
                   >Delete</a
                 >
               </li>
@@ -143,18 +143,19 @@ export default defineComponent({
       {
         columnName: "Description",
         columnLabel: "description",
+        sortEnabled: false,
         columnWidth: 450,
       },
       {
         columnName: "Category",
         columnLabel: "category",
-        sortEnabled: true,
+        sortEnabled: false,
         columnWidth: 100,
       },
       {
         columnName: "Created Date",
         columnLabel: "date",
-        sortEnabled: true,
+        sortEnabled: false,
         columnWidth: 100,
       },
       {
@@ -170,7 +171,7 @@ export default defineComponent({
     });
 
     const getQuestions = async (): Promise<void> => {
-      store.getQuestions({
+      store.getAllQuestions({
         callback: {
           onSuccess: (res: any) => {
             tableData.value = res.items;
@@ -185,37 +186,56 @@ export default defineComponent({
       });
     };
 
-    const deleteFewQuestions = () => {
+    const deleteAQuestion = async (id: number) => {
       SwalPopup.swalChangePopup(
         "Are you sure you want to delete?",
         {
-          onConfirmed: () => {
-            selectedIds.value.forEach((item) => {
-              for (let i = 0; i < tableData.value.length; i++) {
-                if (tableData.value[i].id === item) {
-                  tableData.value.splice(i, 1);
-                  break;
-                }
-              }
+          onConfirmed: async () => {
+            store.deleteQuestion({
+              id: id,
+              callback: {
+                onSuccess: () => {
+                  getQuestions();
+                },
+                onFailure: (err: any) => {
+                  SwalPopup.swalResultPopup(
+                    "Sorry, looks like there are some errors detected, please try again.",
+                    "error"
+                  );
+                },
+              },
             });
-            selectedIds.value.length = 0;
           },
         },
         { confirmButtonText: "Yes, delete!" }
       );
     };
 
-    const deleteQuestion = (id: number) => {
+    const deleteFewQuestions = async (): Promise<void> => {
       SwalPopup.swalChangePopup(
         "Are you sure you want to delete?",
         {
-          onConfirmed: () => {
-            for (let i = 0; i < tableData.value.length; i++) {
-              if (tableData.value[i].id === id) {
-                tableData.value.splice(i, 1);
-                break;
+          onConfirmed: async () => {
+            for (const item of selectedIds.value) {
+              try {
+                await store.deleteQuestion({
+                  id: item,
+                  callback: {
+                    onSuccess: () => {},
+                    onFailure: (err: any) => {
+                      SwalPopup.swalResultPopup(
+                        "Sorry, looks like there are some errors detected, please try again.",
+                        "error"
+                      );
+                    },
+                  },
+                });
+              } catch (error) {
+                console.error(error);
               }
             }
+            getQuestions();
+            selectedIds.value = [];
           },
         },
         { confirmButtonText: "Yes, delete!" }
@@ -250,11 +270,11 @@ export default defineComponent({
     return {
       tableData,
       tableHeader,
-      deleteQuestion,
       search,
       searchItems,
       selectedIds,
       deleteFewQuestions,
+      deleteAQuestion,
       sort,
       onItemSelect,
       getAssetPath,

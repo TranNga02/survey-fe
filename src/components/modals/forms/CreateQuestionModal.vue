@@ -297,7 +297,7 @@ export default defineComponent({
     });
 
     const getListCategories = async (): Promise<void> => {
-      categoryStore.getCategories({
+      categoryStore.getAllCategories({
         callback: {
           onSuccess: (res: any) => {
             listCategories.value = res.categories.rows;

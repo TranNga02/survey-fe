@@ -1,8 +1,8 @@
 <template>
   <div
     class="modal fade"
-    id="kt_modal_add_category"
-    ref="addCategoryModalRef"
+    id="kt_modal_update_category"
+    ref="updateCategoryModalRef"
     tabindex="-1"
     aria-hidden="true"
   >
@@ -11,14 +11,14 @@
       <!--begin::Modal content-->
       <div class="modal-content">
         <!--begin::Modal header-->
-        <div class="modal-header" id="kt_modal_add_category_header">
+        <div class="modal-header" id="kt_modal_update_category_header">
           <!--begin::Modal title-->
-          <h2 class="fw-bold">Create category</h2>
+          <h2 class="fw-bold">Update category</h2>
           <!--end::Modal title-->
 
           <!--begin::Close-->
           <div
-            id="kt_modal_add_category_close"
+            id="kt_modal_update_category_close"
             data-bs-dismiss="modal"
             class="btn btn-icon btn-sm btn-active-icon-primary"
           >
@@ -43,12 +43,12 @@
             <!--begin::Scroll-->
             <div
               class="scroll-y me-n7 pe-7"
-              id="kt_modal_add_category_scroll"
+              id="kt_modal_update_category_scroll"
               data-kt-scroll="true"
               data-kt-scroll-activate="{default: false, lg: true}"
               data-kt-scroll-max-height="auto"
-              data-kt-scroll-dependencies="#kt_modal_add_category_header"
-              data-kt-scroll-wrappers="#kt_modal_add_category_scroll"
+              data-kt-scroll-dependencies="#kt_modal_update_category_header"
+              data-kt-scroll-wrappers="#kt_modal_update_category_scroll"
               data-kt-scroll-offset="300px"
             >
               <!--begin::Input group-->
@@ -78,7 +78,7 @@
             <!--begin::Button-->
             <button
               type="reset"
-              id="kt_modal_add_category_cancel"
+              id="kt_modal_update_category_cancel"
               class="btn btn-light me-3"
             >
               Cancel
@@ -118,25 +118,39 @@
 
 <script lang="ts">
 import { getAssetPath } from "@/core/helpers/assets";
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, watch } from "vue";
 import { hideModal } from "@/core/helpers/dom";
 import Swal from "sweetalert2";
 import { useCategoryStore } from "@/stores/category";
 import type { UpdateCategoryParams } from "@/core/data/category";
 import SwalPopup from "@/core/helpers/swalPopup";
+import type { ICategory } from "@/core/data/category";
 
 export default defineComponent({
-  name: "create-category-modal",
+  name: "update-category-modal",
   components: {},
-  emits: ["created-category"],
+  props: {
+    category: {
+      type: Object as () => ICategory,
+      required: false,
+    },
+  },
+  emits: ["updated-category"],
   setup(props, { emit }) {
     const store = useCategoryStore();
     const formRef = ref<null | HTMLFormElement>(null);
-    const addCategoryModalRef = ref<null | HTMLElement>(null);
+    const updateCategoryModalRef = ref<null | HTMLElement>(null);
     const loading = ref<boolean>(false);
     const formData = ref<UpdateCategoryParams>({
-      name: "",
+      name: props?.category?.name || "",
     });
+
+    watch(
+      () => props.category,
+      (newCategory) => {
+        formData.value.name = newCategory?.name || "";
+      }
+    );
 
     const rules = ref({
       name: [
@@ -156,19 +170,20 @@ export default defineComponent({
       formRef.value.validate((valid: boolean) => {
         if (valid) {
           loading.value = true;
-          createCategory();
+          updateCategory();
         }
       });
     };
 
-    const createCategory = async (): Promise<void> => {
-      store.createCategory({
+    const updateCategory = async (): Promise<void> => {
+      store.updateCategory({
+        id: props?.category?.id.toString() || "",
         params: formData.value,
         callback: {
           onSuccess: (res: any) => {
             loading.value = false;
             Swal.fire({
-              text: "Category has been successfully added!",
+              text: "Category has been successfully updated!",
               icon: "success",
               buttonsStyling: false,
               confirmButtonText: "Ok, got it!",
@@ -177,8 +192,8 @@ export default defineComponent({
                 confirmButton: "btn btn-primary",
               },
             }).then(() => {
-              emit("created-category");
-              hideModal(addCategoryModalRef.value);
+              emit("updated-category");
+              hideModal(updateCategoryModalRef.value);
             });
           },
           onFailure: (err: any) => {
@@ -198,7 +213,7 @@ export default defineComponent({
       submit,
       formRef,
       loading,
-      addCategoryModalRef,
+      updateCategoryModalRef,
       getAssetPath,
     };
   },

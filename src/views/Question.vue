@@ -1,47 +1,85 @@
 <template>
   <div class="card">
     <div class="card-header border-0 pt-6">
-      <!--begin::Card title-->
       <div class="card-title">
         <div
           class="d-flex justify-content-end"
-          data-kt-category-table-toolbar="base"
+          data-kt-customer-table-toolbar="base"
         >
-          <!--begin::Add Category-->
           <button
             type="button"
             class="btn btn-primary"
             data-bs-toggle="modal"
-            data-bs-target="#kt_modal_add_category"
+            data-bs-target="#kt_modal_add_question"
           >
             <span class="svg-icon svg-icon-2">
               <inline-svg
                 :src="getAssetPath('media/icons/duotune/arrows/arr075.svg')"
               />
             </span>
-            Add Category
+            Add Question
           </button>
-          <!--end::Add Category-->
         </div>
       </div>
-      <!--begin::Card title-->
+      <div class="card-toolbar">
+        <div
+          v-if="selectedIds.length !== 0"
+          class="d-flex justify-content-end align-items-center"
+          data-kt-customer-table-toolbar="selected"
+        >
+          <div class="fw-bold me-5">
+            <span class="me-2">{{ selectedIds.length }}</span
+            >Selected
+          </div>
+          <button
+            type="button"
+            class="btn btn-danger"
+            @click="deleteFewQuestions()"
+          >
+            Delete Selected
+          </button>
+        </div>
+        <div
+          class="d-flex justify-content-end align-items-center d-none"
+          data-kt-customer-table-toolbar="selected"
+        >
+          <div class="fw-bold me-5">
+            <span
+              class="me-2"
+              data-kt-customer-table-select="selected_count"
+            ></span
+            >Selected
+          </div>
+          <button
+            type="button"
+            class="btn btn-danger"
+            data-kt-customer-table-select="delete_selected"
+          >
+            Delete Selected
+          </button>
+        </div>
+      </div>
     </div>
     <div class="card-body pt-0">
       <DataTable
         @on-sort="sort"
+        @on-items-select="onItemSelect"
         :data="tableData"
         :header="tableHeader"
         :enable-items-per-page-dropdown="true"
         :checkbox-enabled="true"
         checkbox-label="id"
       >
-        <template v-slot:name="{ row: category }">
-          {{ category.name }}
+        <template v-slot:description="{ row: question }">
+          {{ question.description }}
         </template>
-        <template v-slot:date="{ row: category }">
-          {{ formatDate(category.createdAt) }}
+        <template v-slot:category="{ row: question }">
+          {{ question.category.name }}
         </template>
-        <template v-slot:actions="{ row: category }">
+        <template v-slot:date="{ row: question }">
+          {{ formatDate(question.createdAt) }}
+        </template>
+        <template v-slot:actions="{ row: question }">
           <div class="dropdown dropdown-primary">
             <button
               class="btn btn-sm btn-light btn-active-light-primary dropdown-toggle"
@@ -60,13 +98,12 @@
                 <a
                   class="dropdown-item"
                   data-bs-toggle="modal"
-                  data-bs-target="#kt_modal_update_category"
-                  @click="onEdit(category)"
+                  data-bs-target="#kt_modal_update_question"
                   >Edit</a
                 >
               </li>
               <li>
-                <a class="dropdown-item" @click="deleteCategory(category.id)"
+                <a class="dropdown-item" @click="deleteQuestion(question.id)"
                   >Delete</a
                 >
               </li>
@@ -76,11 +113,7 @@
       </DataTable>
     </div>
   </div>
-  <CreateCategoryModal @created-category="getCategories" />
-  <UpdateCategoryModal
-    @updated-category="getCategories"
-    :category="selectedCategory"
-  />
+  <CreateQuestionModal />
 </template>
 
 <script lang="ts">
@@ -89,31 +122,34 @@ import { defineComponent, ref, onMounted } from "vue";
 import DataTable from "@/components/kt-datatable/KTDataTable.vue";
 import type { Sort } from "@/components/kt-datatable//table-partials/models";
 import arraySort from "array-sort";
-import { useCategoryStore } from "@/stores/category";
-import type { ICategory } from "@/core/data/category";
+import type { IQuestion } from "@/core/data/question";
 import { formatDate } from "@/core/helpers/date";
-import CreateCategoryModal from "@/components/modals/forms/CreateCategoryModal.vue";
-import UpdateCategoryModal from "@/components/modals/forms/UpdateCategoryModal.vue";
+import CreateQuestionModal from "@/components/modals/forms/CreateQuestionModal.vue";
 import SwalPopup from "@/core/helpers/swalPopup";
+import { useQuestionStore } from "@/stores/question";
 
 export default defineComponent({
-  name: "category",
+  name: "question",
   components: {
     DataTable,
-    CreateCategoryModal,
-    UpdateCategoryModal,
+    CreateQuestionModal,
   },
   setup() {
-    const store = useCategoryStore();
-    const selectedCategory = ref<ICategory>();
-    const tableData = ref<Array<ICategory>>([]);
+    const store = useQuestionStore();
+    const selectedIds = ref<Array<number>>([]);
+    const tableData = ref<Array<IQuestion>>([]);
 
     const tableHeader = ref([
       {
-        columnName: "Name",
-        columnLabel: "name",
+        columnName: "Description",
+        columnLabel: "description",
+        columnWidth: 450,
+      },
+      {
+        columnName: "Category",
+        columnLabel: "category",
         sortEnabled: true,
-        columnWidth: 175,
+        columnWidth: 100,
       },
       {
         columnName: "Created Date",
@@ -130,14 +166,14 @@ export default defineComponent({
     ]);
 
     onMounted(() => {
-      getCategories();
+      getQuestions();
     });
 
-    const getCategories = async (): Promise<void> => {
-      store.getCategories({
+    const getQuestions = async (): Promise<void> => {
+      store.getQuestions({
         callback: {
           onSuccess: (res: any) => {
-            tableData.value = res.categories.rows;
+            tableData.value = res.items;
           },
           onFailure: (err: any) => {
             SwalPopup.swalResultPopup(
@@ -149,25 +185,37 @@ export default defineComponent({
       });
     };
 
-    const deleteCategory = async (id: number) => {
+    const deleteFewQuestions = () => {
       SwalPopup.swalChangePopup(
         "Are you sure you want to delete?",
         {
-          onConfirmed: async () => {
-            store.deleteCategory({
-              id: id,
-              callback: {
-                onSuccess: () => {
-                  getCategories();
-                },
-                onFailure: (err: any) => {
-                  SwalPopup.swalResultPopup(
-                    "Sorry, looks like there are some errors detected, please try again.",
-                    "error"
-                  );
-                },
-              },
+          onConfirmed: () => {
+            selectedIds.value.forEach((item) => {
+              for (let i = 0; i < tableData.value.length; i++) {
+                if (tableData.value[i].id === item) {
+                  tableData.value.splice(i, 1);
+                  break;
+                }
+              }
             });
+            selectedIds.value.length = 0;
+          },
+        },
+        { confirmButtonText: "Yes, delete!" }
+      );
+    };
+
+    const deleteQuestion = (id: number) => {
+      SwalPopup.swalChangePopup(
+        "Are you sure you want to delete?",
+        {
+          onConfirmed: () => {
+            for (let i = 0; i < tableData.value.length; i++) {
+              if (tableData.value[i].id === id) {
+                tableData.value.splice(i, 1);
+                break;
+              }
+            }
           },
         },
         { confirmButtonText: "Yes, delete!" }
@@ -195,22 +243,22 @@ export default defineComponent({
       }
     };
 
-    const onEdit = (category: ICategory) => {
-      selectedCategory.value = category;
+    const onItemSelect = (selectedItems: Array<number>) => {
+      selectedIds.value = selectedItems;
     };
 
     return {
       tableData,
       tableHeader,
-      deleteCategory,
+      deleteQuestion,
       search,
       searchItems,
-      selectedCategory,
+      selectedIds,
+      deleteFewQuestions,
       sort,
-      onEdit,
+      onItemSelect,
       getAssetPath,
       formatDate,
-      getCategories,
     };
   },
 });

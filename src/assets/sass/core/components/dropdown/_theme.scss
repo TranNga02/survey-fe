@@ -1,0 +1,11 @@
+.dropdown.dropdown-primary .dropdown-item {
+  color: var(--bs-gray-600);
+  border-radius: 0.475rem;
+  cursor: pointer;
+}
+
+.dropdown.dropdown-primary .dropdown-item:hover {
+  color: var(--bs-primary);
+  border-color: var(--bs-primary-light);
+  background-color: var(--bs-primary-light) !important;
+}

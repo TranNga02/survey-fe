@@ -52,7 +52,7 @@
               data-kt-scroll-wrappers="#kt_modal_add_question_scroll"
               data-kt-scroll-offset="300px"
             >
-              <div class="d-flex flex-column mb-7 fv-row">
+              <div class="fv-row mb-7">
                 <!-- <div class="col-md-6 fv-row"> -->
                 <!--begin::Label-->
                 <label class="fs-6 fw-bold mb-2">
@@ -89,55 +89,59 @@
               </div>
               <div class="fv-row mb-7">
                 <label class="required fs-6 fw-bold mb-2">Answers</label>
-                <!-- <el-form-item prop="options"> -->
-                <div
-                  v-for="(option, index) in formData.options"
-                  class="w-100 d-flex border-bottom py-3"
-                  :key="index"
-                >
-                  <el-form-item
-                    class="w-100"
-                    :prop="'options.' + index + '.key'"
-                    :rules="{
-                      required: true,
-                      message: 'answer is required',
-                      trigger: 'change',
-                    }"
+                <el-form-item prop="answer">
+                  <!-- <el-form-item prop="options"> -->
+                  <div
+                    v-for="(option, index) in formData.options"
+                    class="d-flex border-bottom w-100 align-items-center mb-2 pb-1"
+                    :key="index"
                   >
-                    <el-input
-                      v-model="option.key"
-                      type="text"
-                      placeholder="Enter answer"
-                    ></el-input>
-                  </el-form-item>
+                    <el-form-item
+                      class="w-100 pt-2 pb-4 mb-2"
+                      :prop="'options.' + index + '.key'"
+                      :rules="{
+                        required: true,
+                        message: 'Answer is required',
+                        trigger: 'change',
+                      }"
+                    >
+                      <el-input
+                        v-model="option.key"
+                        type="text"
+                        placeholder="Enter answer"
+                      ></el-input>
+                    </el-form-item>
 
-                  <el-tooltip
-                    class="box-item"
-                    effect="light"
-                    content="Mark as right answer"
-                    placement="top"
-                  >
-                    <el-switch
-                      class="mx-3"
-                      :value="option.isAnswer"
-                      @change="(value) => chooseRightAnswer(index, value)"
-                    />
-                  </el-tooltip>
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-icon btn-light-danger"
-                    @click="() => formData.options.splice(index, 1)"
-                  >
-                    <span class="svg-icon svg-icon-1">
-                      <inline-svg
-                        :src="
-                          getAssetPath('media/icons/duotune/arrows/arr061.svg')
-                        "
+                    <el-tooltip
+                      class="box-item"
+                      effect="light"
+                      content="Mark as right answer"
+                      placement="top"
+                    >
+                      <el-switch
+                        class="mx-3"
+                        :value="option.isAnswer"
+                        @change="(value) => chooseRightAnswer(index, value)"
                       />
-                    </span>
-                  </button>
-                </div>
-                <!-- </el-form-item> -->
+                    </el-tooltip>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-icon btn-light-danger"
+                      @click="() => formData.options.splice(index, 1)"
+                    >
+                      <span class="svg-icon svg-icon-1">
+                        <inline-svg
+                          :src="
+                            getAssetPath(
+                              'media/icons/duotune/arrows/arr061.svg'
+                            )
+                          "
+                        />
+                      </span>
+                    </button>
+                  </div>
+                  <!-- </el-form-item> -->
+                </el-form-item>
               </div>
               <div class="fv-row mb-7">
                 <button
@@ -243,6 +247,22 @@ export default defineComponent({
       ],
     });
 
+    const validateAnswer = (rule: any, value: any, callback: any) => {
+      if (formData.value.options.length == 0) {
+        callback(new Error("Please add at least one answer"));
+      } else {
+        let checked = 0;
+        formData.value.options.map((answer: IOption) => {
+          checked += Number(answer.isAnswer);
+        });
+        if (!checked) {
+          callback(new Error("Please choose one right answer"));
+        } else {
+          callback();
+        }
+      }
+    };
+
     const rules = ref({
       description: [
         {
@@ -258,14 +278,7 @@ export default defineComponent({
           trigger: "change",
         },
       ],
-      options: [
-        {
-          type: "array",
-          required: true,
-          message: "Please select at least one activity type",
-          trigger: "change",
-        },
-      ],
+      answer: [{ validator: validateAnswer, trigger: "change" }],
     });
 
     onMounted(() => {

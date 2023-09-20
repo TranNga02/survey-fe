@@ -87,12 +87,15 @@
               <div class="fv-row mb-7">
                 <label class="required fs-6 fw-bold mb-2">Description</label>
                 <el-form-item prop="description">
-                  <el-input
-                    v-model="formData.description"
-                    type="textarea"
-                    :rows="5"
-                    placeholder="Enter description"
-                  />
+                  <p class="w-100">
+                    <span
+                      class="el-textarea el-textarea__inner"
+                      role="textbox"
+                      contenteditable
+                      @input="updateDescription"
+                      ref="descriptionInput"
+                    ></span>
+                  </p>
                 </el-form-item>
               </div>
               <div class="fv-row mb-7">
@@ -113,11 +116,20 @@
                         trigger: 'change',
                       }"
                     >
-                      <el-input
+                      <p class="w-100 m-0">
+                        <span
+                          class="el-textarea el-textarea__inner"
+                          role="textbox"
+                          contenteditable
+                          @input="updateAnswer(index)"
+                          ref="answerInput"
+                        ></span>
+                      </p>
+                      <!-- <el-input
                         v-model="option.key"
                         type="text"
                         placeholder="Enter answer"
-                      ></el-input>
+                      ></el-input> -->
                     </el-form-item>
 
                     <el-tooltip
@@ -218,11 +230,7 @@ import Swal from "sweetalert2";
 import SwalPopup from "@/core/helpers/swalPopup";
 import { useQuestionStore } from "@/stores/question";
 import { useCategoryStore } from "@/stores/category";
-import type {
-  CreateQuestionParams,
-  IOption,
-  IQuestion,
-} from "@/core/data/question";
+import type { CreateQuestionParams, IOption } from "@/core/data/question";
 import type { ICategory } from "@/core/data/category";
 
 export default defineComponent({
@@ -236,6 +244,8 @@ export default defineComponent({
     const listCategories = ref<ICategory[]>([]);
     const addQuestionModalRef = ref<null | HTMLElement>(null);
     const loading = ref<boolean>(false);
+    const descriptionInput = ref<HTMLElement | null>(null);
+    const answerInput = ref<HTMLElement[]>([]);
     const initialForm: CreateQuestionParams = {
       categoryId: null,
       title: "",
@@ -255,6 +265,11 @@ export default defineComponent({
     );
 
     const resetForm = () => {
+      if (descriptionInput.value) {
+        descriptionInput.value.innerText = "";
+      }
+      answerInput.value.map((item: any) => (item.innerText = ""));
+
       formData.value = JSON.parse(JSON.stringify(initialForm));
     };
 
@@ -378,6 +393,15 @@ export default defineComponent({
       });
     };
 
+    const updateDescription = () => {
+      formData.value.description = descriptionInput.value?.innerText || "";
+    };
+
+    const updateAnswer = (index: number) => {
+      formData.value.options[index].key =
+        answerInput.value[index].textContent || "";
+    };
+
     return {
       formData,
       listCategories,
@@ -390,6 +414,10 @@ export default defineComponent({
       addNewAnswer,
       chooseRightAnswer,
       resetForm,
+      updateDescription,
+      descriptionInput,
+      updateAnswer,
+      answerInput,
     };
   },
 });

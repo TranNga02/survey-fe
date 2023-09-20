@@ -13,7 +13,7 @@
         <!--begin::Modal header-->
         <div class="modal-header" id="kt_modal_update_category_header">
           <!--begin::Modal title-->
-          <h2 class="fw-bold">Update category</h2>
+          <h2 class="fw-bold">Edit category</h2>
           <!--end::Modal title-->
 
           <!--begin::Close-->
